@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>给娇娇的秘密</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap');
+
+html, body {
+  margin:0; padding:0;
+  width:100%; height:100%;
+  font-family: 'Great Vibes', cursive, "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  background:#000;
+  overflow:hidden;
+}
+
+/* 视频背景 16:9 自适应 */
+#bg-video {
+  position: fixed;
+  top:50%;
+  left:50%;
+  transform: translate(-50%, -50%);
+  width:100%;
+  height:auto;
+  max-height:100%;
+  aspect-ratio:16/9;
+  object-fit: contain;
+  z-index:0;
+  opacity:0;
+  transition: opacity 1.5s ease-in;
+  background-color: black;
+}
+
+/* 开始按钮 */
+#start-btn {
+  position:fixed;
+  top:50%; left:50%;
+  transform:translate(-50%, -50%);
+  padding:12px 24px;
+  font-size:16px;
+  background:rgba(255,255,255,0.8);
+  border:none;
+  border-radius:12px;
+  cursor:pointer;
+  z-index:10;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+}
+
+/* 信纸容器 */
+#scroll-container {
+  width:90%; max-width:500px;
+  position:absolute;  
+  top:0; bottom:0;
+  left:50%;
+  transform: translateX(-50%);
+  padding:10% 0;
+  overflow:hidden; 
+  z-index:1;
+}
+
+/* 信纸文字样式 */
+.letter-container {
+  font-size: clamp(14px, 4vw, 22px);
+  line-height:1.5;
+  white-space:pre-wrap;
+  background:none; /* 去掉信纸背景 */
+  color:white;
+  mix-blend-mode: difference; /* 自动根据背景深浅调整文字显示 */
+  pointer-events:none; /* 避免干扰滚动 */
+}
+
+.letter-container span {
+  opacity:0;
+  display:inline-block;
+  transform: scale(0.95);
+  animation: write 0.4s ease forwards;
+}
+
+@keyframes write {
+  0% {opacity:0; transform: scale(0.95);}
+  100% {opacity:1; transform: scale(1);}
+}
+
+/* 小屏幕适配 */
+@media (max-width:500px){
+  .letter-container { font-size:5vw; }
+}
+</style>
+</head>
+<body>
+
+<video id="bg-video" playsinline webkit-playsinline loop muted>
+  <source src="video.mp4" type="video/mp4">
+</video>
+
+<audio id="bg-music" src="music.mp3" loop></audio>
+<audio id="ink-sound" src="ink.mp3"></audio>
+
+<button id="start-btn">宝宝点击哦</button>
+
+<div id="scroll-container">
+  <div class="letter-container" id="letter"></div>
+</div>
+
+<script>
+const letterText = `亲爱的娇娇：
+
+惊喜吧，我就是嘴硬，偷偷给你做了这个手写信。我想告诉你，遇见你之后，我慢慢明白，爱情不是轰轰烈烈，而是有你的每一天。感谢你的出现，温暖了我的世界，我远比你想象的更需要你。
+
+每天都很想你，还有你总能左右我的情绪。我对你是真心的，很爱很爱很爱你。还喜欢每天都有你的消息，每天都想和你打电话，想天天能听到你的声音，我真的好开心，还喜欢你粘人的样子。
+
+我要和你在一起很久很久很久，我绝不会轻易离开你。我们这么久以来的点点滴滴都是我们爱的见证。这首歌叫做爱你，我要一直爱你，给你一个幸福的未来。希望你也要一直爱我，如果我有什么做错了的地方或惹你生气了，你一定要告诉我，我可不想失去我最爱的宝宝。
+
+和你在一起我好开心。最后呢，希望你能天天开心，要好好吃饭，不要天天吃泡面，朝朝暮暮有我，岁岁年年有你，亲亲，永远爱你的小困猪。
+`;
+
+const container = document.getElementById('letter');
+const scrollContainer = document.getElementById('scroll-container');
+const inkSound = document.getElementById('ink-sound');
+const bgMusic = document.getElementById('bg-music');
+const bgVideo = document.getElementById('bg-video');
+const startBtn = document.getElementById('start-btn');
+
+let index = 0;
+
+// 写信动画 + 自动滚动
+function writeLetter(){
+  if(index<letterText.length){
+    const char = letterText[index];
+    const span = document.createElement('span');
+    span.textContent = char;
+    container.appendChild(span);
+
+    if(char !== '\n'){
+      inkSound.currentTime=0;
+      inkSound.play();
+    }
+
+    scrollContainer.scrollTop = container.scrollHeight - scrollContainer.clientHeight;
+
+    index++;
+    setTimeout(writeLetter, 200); // 每个字显示速度
+  } else { 
+    scrollContainer.style.overflowY = "auto"; // 写完后可手动滑动
+  }
+}
+
+startBtn.addEventListener('click', ()=>{
+  bgVideo.muted=false;
+  bgVideo.play().then(()=> bgVideo.style.opacity=1).catch(console.log);
+  bgVideo.volume=0.7;
+
+  container.style.opacity=1;
+
+  bgMusic.play();
+  bgMusic.volume=0.3;
+
+  startBtn.style.display='none';
+
+  writeLetter();
+});
+</script>
+</body>
+</html>
